@@ -208,7 +208,7 @@ Problem komiwojażera - zagadnienie optymalizacyjne, polegające na znalezieniu 
 Nazwa pochodzi od typowej ilustracji problemu, przedstawiającej go z punktu widzenia wędrownego sprzedawcy (komiwojażera): dane jest n miast, które komiwojażer ma odwiedzić, oraz odległość/cena podróży/czas podróży pomiędzy każdą parą miast. Celem jest znalezienie najkrótszej/najtańszej/najszybszej drogi łączącej wszystkie miasta, zaczynającej się i kończącej się w określonym punkcie.
 \\
 
-W ramach projektu skupimy się na przetestowaniu działania algorytmu realizującego rozwiązanie problemu komiwojarzewa. Typowe algorytmy nie przewidują instnienia ulic jednokierunkowych, dlatego zostaną one zasumulowane poprzez wprowadzenie ścieżek o bardzo dużym koszcie.
+W ramach projektu skupimy się na przetestowaniu działania algorytmu realizującego rozwiązanie problemu komiwojażera. Typowe algorytmy nie przewidują istnienia ulic jednokierunkowych, dlatego będą one symulowane poprzez wprowadzenie ścieżek o bardzo dużym koszcie.
 \\
 
 Testy pokarzą jak duże wagi należy nadać, aby algorytm nie stosował dróg pod prąd oraz jak wiele dróg jednokierunkowych można wprowadzić.
@@ -219,11 +219,12 @@ Projekt zrealizujemy w języku Python. Rozważamy przetestowanie jednej z otwart
 \section{Sprawozdanie 2}
 
 \subsection{Wybór algorytmu}
-Realizację projektu zdecydowaliśmy się rozpocząć od wyboru algorytmu rozwiązującego problem komiwojarzera.
+Realizację projektu zdecydowaliśmy się rozpocząć od wyboru algorytmu rozwiązującego problem komiwojażera.
 
-Na podstawie analizy wydajności dokonanej w [1] zdecydowaliśmy wykorzystać algorytm 2-opt. Wybór podyktowany jest prostotą implementacji oraz rezultatami wyraźnie lepszymi niż algorytm zachłanny. We wspomnianej publikacji porównano algorytm zachłanny oraz 2-opt w obecności 30, 100 oraz 500 miast. \\
+Na podstawie analizy wydajności dokonanej w tabeli [1] zdecydowaliśmy wykorzystać algorytm 2-opt. Wybór podyktowany jest prostotą implementacji oraz rezultatami wyraźnie lepszymi niż algorytm zachłanny. We wspomnianej publikacji porównano algorytm zachłanny oraz 2-opt w obecności 30, 100 oraz 500 miast. \\
 
-\begin{table}[]
+
+\begin{table}[!h]
 \centering
 \caption{Porównanie wydajności algorytmów rozwiązujących problem komiwojarzera}
 \label{my-label}
@@ -240,7 +241,7 @@ Algorytm 2-opt wymaga dostarczenia poprawnej trasy łączącej wszystkie wierzch
 
 \subsection{Realizacja}
 
-Algorytm 2-OPT [2] startuje z pewnego rozwiazania i przez wymianę par krawędzi znajduje lepsze. Zamiana odbywa się poprzez podzielenie drogi na 3 części: poczatek, środek oraz koniec. Kolejność wierzchołków w środkowej części jest odwracana. Na koniec wszystkie trzy części łączone są ponownie. Algorytm wykonuje się do momemntu kiedy porównanie wszystkich par wierzchołków nie wprowadzi żadnej poprawy. \\
+Algorytm 2-OPT [2] startuje z pewnego rozwiązania i przez wymianę par krawędzi znajduje lepsze. Zamiana odbywa się poprzez podzielenie drogi na 3 części: początek, środek oraz koniec. Kolejność wierzchołków w środkowej części jest odwracana. Na koniec wszystkie trzy części łączone są ponownie. Algorytm wykonuje się do momentu kiedy porównanie wszystkich par wierzchołków nie wprowadzi żadnej poprawy. \\
 
 
 \begin{lstlisting}[caption={Główna część algorytmu}]
@@ -323,6 +324,7 @@ Wzpółczynnik drogi jednokierunkowej będzie przedmiotem naszego badania. \\
 
 \end{lstlisting}
 
+\newpage
 \begin{lstlisting}[caption={Funkcja wprowadzająca koszt połączeń jednokierunkowych}]
 
 	wprowadz_kierunek( jakosc_drogi, drogi_jednokierunkowe,
@@ -348,14 +350,35 @@ Wzpółczynnik drogi jednokierunkowej będzie przedmiotem naszego badania. \\
 
 
 Generacja drogi wejściowej dla algorytmu 2-opt zostanie zrealizowana przy pomocy algorytmu najbliższego sąsiada. 
-!!!!!!!!!OPIS TEGO ALGORYTMU!!!!!!!!!! \\
+
+Algorytm najbliższego sąsiada polega na odwiedzeniu, począwszy od wybranego wierzchołka, wierzchołka znajdującego się najbliżej wierzchołka ostatnio odwiedzonego. \\
+
+
+\begin{lstlisting}[caption={Algorytm najbliższego sąsiada}]
+
+	najblizysz_sasiad(tablica_wierzcholkow, tablica_rozwiazan)
+	{
+		aktualny_wierzchołek = losuj_wierzcholek(tablica_wierzcholkow)
+		oznacz_jako_odwiedzony(tablica_wierzcholkow, aktualny_wierzchołek)
+		
+		while(liczba_nieodwiedzonych_wiezcholkow(tablica_wierzcholkow))
+		{
+			nowy_wierzcholek = znajdz_najblizszy_wierzcholek(tablica_wierzcholkow, 
+													aktualny_wierzchołek)
+			dodaj(tablica_rozwiazan,nowy_wierzcholek)
+			oznacz_jako_odwiedzony(tablica_wierzcholkow, nowy_wierzcholek)
+			aktualny_wierzchołek = nowy_wierzcholek
+		}
+	}
+
+\end{lstlisting}
 
 
 
-Program testujący algorytm 2-opt powinien sprawdzić jaka musi być waga połączeń jednokierunkowych, aby algorytm nie wybierał połączeń "pod prąd". Program powinien wykonać się wiele razy na niezmiennym zbiorze wierzchołków i dróg jednokierunkowych. W kolejnych iteracjach koszt pokonania drógi jednokierunkowej będzie sukcesywnie zwiększany, aż do uzyskania wynku nie zawierającego połączeń "pod prąd".
-Program testujący musi przyjmować przygotowane wcześniej: zbiór wierzchołków, tablicę jakości połączeń oraz tablicę dróg jednokierunkowych. W kolejnych iteracjach tablica koszt połączeń w tablicy jakości będzie stopniowo zwiększany. Wyniki dzialania algorytmu dla różnych wartości współczynnika zostaną zebrane oraz podsumowane.
+Program testujący algorytm 2-opt powinien sprawdzić jaka musi być waga połączeń jednokierunkowych, aby algorytm nie wybierał połączeń "pod prąd". Program powinien wykonać się wiele razy na niezmiennym zbiorze wierzchołków i dróg jednokierunkowych. W kolejnych iteracjach koszt pokonania drogi jednokierunkowej będzie sukcesywnie zwiększany, aż do uzyskania wyniku nie zawierającego połączeń "pod prąd".
+Program testujący musi przyjmować przygotowane wcześniej: zbiór wierzchołków, tablicę jakości połączeń oraz tablicę dróg jednokierunkowych. W kolejnych iteracjach tablica koszt połączeń w tablicy jakości będzie stopniowo zwiększany. Wyniki działania algorytmu dla różnych wartości współczynnika zostaną zebrane oraz podsumowane.\\
 
-
+\newpage
 \begin{lstlisting}[caption={Funkcja testująca algorytm}]
 
 		[ zbior_wierzcholkow, 
