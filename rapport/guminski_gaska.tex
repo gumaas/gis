@@ -221,7 +221,7 @@ Projekt zrealizujemy w języku Python. Rozważamy przetestowanie jednej z otwart
 \subsection{Wybór algorytmu}
 Realizację projektu zdecydowaliśmy się rozpocząć od wyboru algorytmu rozwiązującego problem komiwojażera.
 
-Na podstawie analizy wydajności dokonanej w artykule [1] zdecydowaliśmy wykorzystać algorytm 2-opt (tabela 1 zawiera wyniki porównanie dokonanego we wspomianym artykule). Wybór podyktowany jest prostotą implementacji oraz rezultatami wyraźnie lepszymi niż algorytm zachłanny. We wspomnianej publikacji porównano algorytm zachłanny oraz 2-opt w obecności 30, 100 oraz 500 miast.  \\
+Na podstawie analizy wydajności dokonanej w artykule [1] zdecydowaliśmy wykorzystać algorytm 2-opt (tabela 1 zawiera wyniki porównanie dokonanego we wspominanym artykule). Wybór podyktowany jest prostotą implementacji oraz rezultatami wyraźnie lepszymi niż algorytm zachłanny. We wspomnianej publikacji porównano algorytm zachłanny oraz 2-opt w obecności 30, 100 oraz 500 miast.  \\
 
 
 \begin{table}[!h]
@@ -291,9 +291,9 @@ Algorytm 2-OPT [2] wykorzystuje znany cykl Hamiltona jako punkt wyjścia. Algory
 
 Funkcja zmierz\_dlugosc\_drogi będzie zwracać dlugość drogi. Drogi jednokierunkowe będą symulowane poprzez nadanie bardzo dużego współczynnika. \\
 
-Współrzędne wierzchołków będą generowane losowo z pewnego zakresu i zapisywane w tablica\_wierzcholkow. Wylosowana zostanie lista połączeń jednokierunkowych oraz kierunek połączenia. Koszty połączeń, zapisane w tablicy jakosc\_drogi. Zwiększenie kosztu polaczenia dla drog jednokierunkowych realizowane będzie przez funkcję wprowadz\_kierunek.
+Współrzędne wierzchołków będą generowane losowo z pewnego zakresu i zapisywane w tablica\_wierzcholkow. Wylosowana zostanie lista połączeń jednokierunkowych oraz kierunek połączenia. Koszty połączeń, zapisane w tablicy jakosc\_drogi. Zwiększenie kosztu połączenia dla dróg jednokierunkowych realizowane będzie przez funkcję wprowadz\_kierunek.
 
-Wzpółczynnik drogi jednokierunkowej będzie przedmiotem naszego badania. \\
+Współczynnik drogi jednokierunkowej będzie przedmiotem naszego badania. \\
 
 \begin{itemize}
 \item tablica\_wierzcholkow[wierzcholek]=[polożenie\_X, położenie\_Y] - tablica przechowująca współrzędne wierzchołków.
@@ -376,7 +376,7 @@ Algorytm najbliższego sąsiada polega na odwiedzeniu, począwszy od wybranego w
 Program testujący algorytm 2-opt powinien sprawdzić jaka musi być waga połączeń jednokierunkowych, aby algorytm nie wybierał połączeń "pod prąd". Program powinien wykonać się wiele razy na niezmiennym zbiorze wierzchołków i dróg jednokierunkowych. W kolejnych iteracjach koszt pokonania drogi jednokierunkowej będzie sukcesywnie zwiększany, aż do uzyskania wyniku nie zawierającego połączeń "pod prąd".
 Program testujący musi przyjmować przygotowane wcześniej: zbiór wierzchołków, tablicę jakości połączeń oraz tablicę dróg jednokierunkowych. \\
 
-W kolejnych iteracjach koszt połączeń będzie stopniowo zwiększany (na przykład o rząd wielkości). Liczba prób zostanie ustalona eksperymentalnie. Trudo jest przewidywać jaki współczynnik kosztu będzie niezbędny, aby zapobiec wyborowi dróg wiodących pod prąd. Algorytm 2-opt ma skłonność do znajdowania lokalnych minimów funkcji kosztu, dlatego spodziewamy się, że koszt pojedynczego połączenia jednokierunkowego będzie musiał być porównywalny z kosztem pokonania całej drogi. \\
+W kolejnych iteracjach koszt połączeń będzie stopniowo zwiększany (na przykład o rząd wielkości). Liczba prób zostanie ustalona eksperymentalnie. Trudno jest przewidywać jaki współczynnik kosztu będzie niezbędny, aby zapobiec wyborowi dróg wiodących pod prąd. Algorytm 2-opt ma skłonność do znajdowania lokalnych minimów funkcji kosztu, dlatego spodziewamy się, że koszt pojedynczego połączenia jednokierunkowego będzie musiał być porównywalny z kosztem pokonania całej drogi. \\
 
 Wyniki działania algorytmu dla różnych wartości współczynnika zostaną zebrane oraz podsumowane. Wykreślone zostaną zależności liczby kroków pod prąd od liczby połączeń jednokierunkowych oraz od współczynnika drogi jednokierunkowej. Dokonamy sprawdzenia w jakim stopniu wyniki są losowe poprzez przebadanie wielu grafów o tych samych parametrach. \\
 
