@@ -9,6 +9,10 @@ import numpy
 import matplotlib.pyplot as plt
 import copy 
 import sys
+import itertools
+
+import os
+import fnmatch
 
 obszar=(1,1)
 zakresjakosci=(1,1)
@@ -16,8 +20,8 @@ losuj_wierzcholek_startowy = False
 losuj_nowy_graf = True
 wspolczynnik_drogi_jednokierunkowej = 9999
 
-glob_liczba_wierzcholkow = 100
-glob_liczba_jednokierunkowych = 1000
+glob_liczba_wierzcholkow = 500
+glob_liczba_jednokierunkowych = 5000
 
 
 
@@ -32,29 +36,37 @@ def wprowadz_jednokierunkowe( odleglosci, jednokierunkowe ):
         
     return odleglosci        
 
-def losuj_drogi_jednokierunkowe( liczba ):
-    jednokierunkowe = [ numpy.random.random_integers(0,glob_liczba_wierzcholkow-1,2) ]
-    while( len( jednokierunkowe ) < liczba ):
-        new = numpy.random.random_integers(0,glob_liczba_wierzcholkow-1,2)
-        if new[0] != new[1]:
-            err = False
-            for i in xrange(len(jednokierunkowe) ):
-                if numpy.array_equal( numpy.sort(jednokierunkowe[i]), numpy.sort(new) ):
-                    err = True                    
-                    break
-            if not err : 
-                jednokierunkowe.append(new)
+#def losuj_drogi_jednokierunkowe( liczba ):
+#    jednokierunkowe = [ numpy.random.random_integers(0,glob_liczba_wierzcholkow-1,2) ]
+#    while( len( jednokierunkowe ) < liczba ):
+#        new = numpy.random.random_integers(0,glob_liczba_wierzcholkow-1,2)
+#        if new[0] != new[1]:
+#            err = False
+#            for i in xrange(len(jednokierunkowe) ):
+#                if numpy.array_equal( numpy.sort(jednokierunkowe[i]), numpy.sort(new) ):
+#                    err = True                    
+#                    break
+#            if not err : 
+#                jednokierunkowe.append(new)
+#                sys.stdout.write( "\rLosowanie drogi nr: %d/%d" % ( len(jednokierunkowe),liczba ) )
+#                sys.stdout.flush()
+##                print "Losowanie drogi nr: %d/%d\r" ( len(jednokierunkowe), liczba )
+#    
+#    print "\n"
+#    return jednokierunkowe
 
-    return jednokierunkowe
-    
+
+def losuj_drogi_jednokierunkowe( liczba ):
+    jednokierunkowe = list(itertools.combinations(range(0,glob_liczba_wierzcholkow),2))
+    numpy.random.shuffle(jednokierunkowe)
+    return jednokierunkowe[:liczba]
 
 
 def generuj_drogi( liczba_wierzcholkow, liczba_drog_jednokierunkowych ) :
     tablica_wiercholkow = obszar*numpy.random.rand(liczba_wierzcholkow,2)
-    jakosc_drogi = ( zakresjakosci[1]-zakresjakosci[0])*numpy.random.rand(liczba_wierzcholkow,2)+zakresjakosci[0]
     drogi_jednokierunkowe = losuj_drogi_jednokierunkowe(glob_liczba_jednokierunkowych)
     
-    return [ tablica_wiercholkow, jakosc_drogi, drogi_jednokierunkowe ]
+    return [ tablica_wiercholkow, drogi_jednokierunkowe ]
     
 
 def oblicz_odleglosc( v1, v2 ):
@@ -162,12 +174,6 @@ def rysuj_cykl( tablica_wiercholkow, cykl ):
     plt.plot(x,y,'ro-')
     plt.show()
 
-if losuj_nowy_graf:
-    [v, j, k ] = generuj_drogi(glob_liczba_wierzcholkow, glob_liczba_jednokierunkowych)
-    numpy.save( 'tmp',v)
-else:
-    v=numpy.load('tmp.npy')
-
 
 def szukaj_pod_prad( jednokierunkowe, cykl ):
     pod_prad = []    
@@ -181,37 +187,138 @@ def szukaj_pod_prad( jednokierunkowe, cykl ):
     return [ cnt, pod_prad ]
 
 
+def generuj_dane_wejsciowe( liczba, zbior_liczb_wiercholkow, zbior_liczb_jednokier, katalog ):
+
+    global glob_liczba_wierzcholkow
+    global glob_liczba_jednokierunkowych
+    idxw=-1
+    for lw in zbior_liczb_wiercholkow:
+        idxw += 1
+        idxj =-1
+        for lj in zbior_liczb_jednokier:
+            idxj += 1
+            for n in xrange( liczba ):
+#                if ( n % 10 ) == 0 :
+                print "Liczba wiercholkow: %d/%d, jednokierunkowe: %d/%d, zbior: %d/%d" % ( idxw, len( zbior_liczb_wiercholkow ), idxj, len(zbior_liczb_jednokier), n, liczba ) 
+                glob_liczba_wierzcholkow = lw
+                glob_liczba_jednokierunkowych = int(lw*(lw-1)*lj/2)
+                [ v, j ] = generuj_drogi( glob_liczba_wierzcholkow, glob_liczba_jednokierunkowych )
+                filename="w%04.d_j%04.d_n%04.d" % ( glob_liczba_wierzcholkow, glob_liczba_jednokierunkowych, n )
+                if len(j) != glob_liczba_jednokierunkowych:
+                    print "dlugosc wektora: %d, nazwapliku: %d" % ( len(j), glob_liczba_jednokierunkowych  )
+                    sys.exit("Niezgodna liczba drog jednokierunkowych")
+                numpy.save( katalog+filename, [v,j] )
+                
+
+def parsename( name ):
+    v = int( name.split('_')[0][1:] )
+    j = int( name.split('_')[1][1:] )
+    n = int( name.split('_')[2][1:] )
+    return [v,j,n]
+    
+def testuj(dirname,wyjscie, pattern, wspolczynniki ):
+    global glob_liczba_jednokierunkowych
+    global glob_liczba_wierzcholkow
+    global wspolczynnik_drogi_jednokierunkowej
+    
+    result = {}
+    if not os.path.isdir(wyjscie):
+        os.mkdir(wyjscie)
+        
+    for f in os.listdir(dirname):
+        if fnmatch.fnmatch( f, pattern):
+            print f
+            [v,j] = numpy.load( dirname+'/'+f )
+            [cw,cj,cn] = parsename(f.split('.')[0])
+            if cw != len(v) :
+                exit( "Niezgodnosc liczby wierzcholkow")
+
+            if cj != len(j) :
+                print "dlugosc wektora: %d, nazwapliku: %d" % ( cj, len(j) )
+                sys.exit( "Niezgodnosc liczby drog jednokierunkowych")            
+            
+            glob_liczba_jednokierunkowych = cj
+            glob_liczba_wierzcholkow= cw
+            
+            
+            for w in wspolczynniki:
+                print "%s wspolczynnik: %d" % (f, w)
+                wspolczynnik_drogi_jednokierunkowej = w
+                
+                odleglosci = oblicz_wszystkie_odleglosci(v)
+                odleglosci = wprowadz_jednokierunkowe( odleglosci, j )
+                
+                cykl_sasiad = najblizszy_sasiad( v, odleglosci )
+                dlugosc_sasiad = zmierz_cykl( cykl_sasiad, odleglosci )
+                
+                [cykl_2opt, dlugosc_2opt] = opt2( cykl_sasiad, odleglosci )
+    
+                [ liczba_pod_prad_sasiad, pod_prad ]  = szukaj_pod_prad( j, cykl_sasiad )
+                [ liczba_pod_prad_2opt, pod_prad2 ]  = szukaj_pod_prad( j, cykl_2opt )
+
+               
+                
+                tmp = [ dlugosc_sasiad, liczba_pod_prad_sasiad, dlugosc_2opt, liczba_pod_prad_2opt ]
+                
+                
+                try:
+                    result[cj][w].append( tmp )
+                except:
+                    try:
+                        result[cj][w] = [ tmp ]
+                    except:
+                        result[cj] = {}
+                        result[cj][w] = [ tmp ]
+#                print "Długość cyklu: %.16f" % dlugosc_sasiad            
+#                print "Długość cyklu: %.16f" % dlugosc_2opt
+        
+    filename="w%04.d_result" % ( glob_liczba_wierzcholkow )
+    numpy.save( wyjscie + '/0' + filename, result )        
+    return result
+            
+                
+generuj_dane_wejsciowe( 10, [50], numpy.array([ 0, 0.25, 0.5, 0.75 ] ), "../wejsciowe2/" )
+testuj( "../wejsciowe2/", "../wyjsciowe2/", "w0050*", [10, 100, 1000 ])
 
 
-odleglosci = oblicz_wszystkie_odleglosci(v)
-odleglosci = wprowadz_jednokierunkowe( odleglosci, k )
 
-
-cykl = najblizszy_sasiad( v, odleglosci )
-print "Długość cyklu: %.16f" % zmierz_cykl( cykl, odleglosci )
-rysuj_cykl( v, cykl )
-print cykl
-
-[cykl2opt, dlugosc2opt] = opt2( cykl, odleglosci )
-print "Długość cyklu: %.16f" % dlugosc2opt
-rysuj_cykl( v, cykl2opt )
-print cykl2opt
-
-#print k
- 
-[ cnt, pod_prad ]  = szukaj_pod_prad( k, cykl )
-[ cnt2, pod_prad2 ]  = szukaj_pod_prad( k, cykl2opt )
-print "Liczba iść pod prąd:"
-print "Zachlanny:%d" % cnt
-print pod_prad
-print "2opt:%d" % cnt2
-print pod_prad2
-
-print "\n\n\n"
-#print k
-#print odleglosci
-#print cykl
-#print zmierz_cykl( cykl, odleglosci )
 #
+#if losuj_nowy_graf:
+#    [v, k ] = generuj_drogi(glob_liczba_wierzcholkow, glob_liczba_jednokierunkowych)
+#    numpy.save( 'tmp',v)
+#else:
+#    v=numpy.load('tmp.npy')
+#
+#
+#odleglosci = oblicz_wszystkie_odleglosci(v)
+#odleglosci = wprowadz_jednokierunkowe( odleglosci, k )
+#
+#
+#cykl = najblizszy_sasiad( v, odleglosci )
+#print "Długość cyklu: %.16f" % zmierz_cykl( cykl, odleglosci )
+#rysuj_cykl( v, cykl )
+#print cykl
+#
+#[cykl2opt, dlugosc2opt] = opt2( cykl, odleglosci )
+#print "Długość cyklu: %.16f" % dlugosc2opt
+#rysuj_cykl( v, cykl2opt )
 #print cykl2opt
-#print zmierz_cykl( cykl2opt, odleglosci )
+#
+##print k
+# 
+#[ cnt, pod_prad ]  = szukaj_pod_prad( k, cykl )
+#[ cnt2, pod_prad2 ]  = szukaj_pod_prad( k, cykl2opt )
+#print "Liczba iść pod prąd:"
+#print "Zachlanny:%d" % cnt
+#print pod_prad
+#print "2opt:%d" % cnt2
+#print pod_prad2
+#
+#print "\n\n\n"
+##print k
+##print odleglosci
+##print cykl
+##print zmierz_cykl( cykl, odleglosci )
+##
+##print cykl2opt
+##print zmierz_cykl( cykl2opt, odleglosci )
