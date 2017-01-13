@@ -36,25 +36,6 @@ def wprowadz_jednokierunkowe( odleglosci, jednokierunkowe ):
         
     return odleglosci        
 
-#def losuj_drogi_jednokierunkowe( liczba ):
-#    jednokierunkowe = [ numpy.random.random_integers(0,glob_liczba_wierzcholkow-1,2) ]
-#    while( len( jednokierunkowe ) < liczba ):
-#        new = numpy.random.random_integers(0,glob_liczba_wierzcholkow-1,2)
-#        if new[0] != new[1]:
-#            err = False
-#            for i in xrange(len(jednokierunkowe) ):
-#                if numpy.array_equal( numpy.sort(jednokierunkowe[i]), numpy.sort(new) ):
-#                    err = True                    
-#                    break
-#            if not err : 
-#                jednokierunkowe.append(new)
-#                sys.stdout.write( "\rLosowanie drogi nr: %d/%d" % ( len(jednokierunkowe),liczba ) )
-#                sys.stdout.flush()
-##                print "Losowanie drogi nr: %d/%d\r" ( len(jednokierunkowe), liczba )
-#    
-#    print "\n"
-#    return jednokierunkowe
-
 
 def losuj_drogi_jednokierunkowe( liczba ):
     jednokierunkowe = list(itertools.combinations(range(0,glob_liczba_wierzcholkow),2))
@@ -275,12 +256,31 @@ def testuj(dirname,wyjscie, pattern, wspolczynniki ):
     filename="w%04.d_result" % ( glob_liczba_wierzcholkow )
     numpy.save( wyjscie + '/0' + filename, result )        
     return result
-            
-                
-generuj_dane_wejsciowe( 10, [50], numpy.array([ 0, 0.25, 0.5, 0.75 ] ), "../wejsciowe2/" )
-testuj( "../wejsciowe2/", "../wyjsciowe2/", "w0050*", [10, 100, 1000 ])
+
+def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
+    res =[]
+    for k in sorted( dane.keys() ):
+        res.append( numpy.array( dane[k][wsp] ).mean(0)[3]/dlugosc_cyklu*100 )
+        
+    plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, res, kolor, label=label)
+        
+#generuj_dane_wejsciowe( 10, [5], numpy.arange(0,1.,0.1,), "../wejsciowe2/" )
+#testuj( "../wejsciowe2/", "../wyjsciowe2/", "w0005*", [10, 100, 1000 ])
 
 
+dat5=numpy.load('../wyjsciowe2/0w0005_result.npy').item()
+dat20=numpy.load('../wyjsciowe2/0w0020_result.npy').item()
+dat50=numpy.load('../wyjsciowe2/0w0050_result.npy').item()
+dat100=numpy.load('../wyjsciowe2/0w0100_result.npy').item()
+
+plot_zle_od_ljednokierunkowych( dat5, 10, 'y-', 6, "n=5" )
+plot_zle_od_ljednokierunkowych( dat20, 10, 'r-', 21, "n=20" )
+plot_zle_od_ljednokierunkowych( dat50, 10, 'b-', 51, "n=50" )
+plot_zle_od_ljednokierunkowych( dat100, 10, 'g-', 101, "n=100"  )
+plt.legend( loc=2)
+plt.xlabel( "Procent ilosci drog jednokierunkowych w grafie")
+plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
+plt.show()
 
 #
 #if losuj_nowy_graf:

@@ -221,27 +221,28 @@ Projekt zrealizujemy w języku Python. Rozważamy przetestowanie jednej z otwart
 \subsection{Wybór algorytmu}
 Realizację projektu zdecydowaliśmy się rozpocząć od wyboru algorytmu rozwiązującego problem komiwojażera.
 
-Na podstawie analizy wydajności dokonanej w tabeli [1] zdecydowaliśmy wykorzystać algorytm 2-opt. Wybór podyktowany jest prostotą implementacji oraz rezultatami wyraźnie lepszymi niż algorytm zachłanny. We wspomnianej publikacji porównano algorytm zachłanny oraz 2-opt w obecności 30, 100 oraz 500 miast. \\
+Na podstawie analizy wydajności dokonanej w artykule [1] zdecydowaliśmy wykorzystać algorytm 2-opt (tabela 1 zawiera wyniki porównanie dokonanego we wspomianym artykule). Wybór podyktowany jest prostotą implementacji oraz rezultatami wyraźnie lepszymi niż algorytm zachłanny. We wspomnianej publikacji porównano algorytm zachłanny oraz 2-opt w obecności 30, 100 oraz 500 miast.  \\
 
 
 \begin{table}[!h]
 \centering
-\caption{Porównanie wydajności algorytmów rozwiązujących problem komiwojarzera}
+\caption{Porównanie długości cyklu Hamiltona wyznaczonego przez różne algorytmy.}
 \label{my-label}
-\begin{tabular}{llll}
- & 30   & 100  & 500   \\
-Zachłanny             & 2330 & 4478 & 10402 \\
-2-opt                 & 2095 & 4320 & 10083
+\begin{tabular}{|l|l|l|l|}
+	\hline
+						 & \textbf{30}   & \textbf{100}  & \textbf{500}   \\ \hline
+	\textbf{Zachłanny}             & 2330 & 4478 & 10402 \\ \hline
+	\textbf{2-opt}                 & 2095 & 4320 & 10083 \\ \hline
 \end{tabular}
 \end{table}
 
 \subsection{Opis algorytmu}
-Algorytm 2-opt wymaga dostarczenia poprawnej trasy łączącej wszystkie wierzchołki oraz funkcji zwracającej koszt połączenia pomiędzy parami wierzchołków. Klasyczne implementacje traktują odległość pomiędzy wierzchołkami na osi X-Y jako koszt krawędzi je łączącej. Test, który będziemy przeprowadzać będzie wymagał rozbudowania funkcji określającej koszt połączenia w taki sposób, aby możliwe było symulowanie dróg jednokierunkowych. \\
+Algorytm 2-opt jest algorytmem optymalizującym i wymaga nie tylko macierzy sąsiedztwa grafu ale także pewnego cyklu Hamiltona tego grafu. Wierzchołki grafu będą miały przyporządkowane położenie na osi X-Y, a koszt krawędzi odpowiadał odległości pomiędzy nimi. Klasyczne algorytmy realizujące problem komiwojażera nie uwzględniają istnienia w grafie krawędzi jednokierunkowych, więc zostaną one zasymulowane poprzez zwiększenie kosztu odpowiednich krawędzi o pewien współczynnik. \\
 
 
 \subsection{Realizacja}
 
-Algorytm 2-OPT [2] startuje z pewnego rozwiązania i przez wymianę par krawędzi znajduje lepsze. Zamiana odbywa się poprzez podzielenie drogi na 3 części: początek, środek oraz koniec. Kolejność wierzchołków w środkowej części jest odwracana. Na koniec wszystkie trzy części łączone są ponownie. Algorytm wykonuje się do momentu kiedy porównanie wszystkich par wierzchołków nie wprowadzi żadnej poprawy. \\
+Algorytm 2-OPT [2] wykorzystuje znany cykl Hamiltona jako punkt wyjścia. Algorytm (zilustrowany pseudokodem na listingu 1) dokonuje zmian w najlepszym znanym cyklu Hamiltona poszukując cyklu o mniejszym koszcie całkowitym. Jeżeli taki cykl zostanie znaleziony, to zastępuje aktualne rozwiązanie. Algorytm kończy się, kiedy nie istnieje zmiana, która mogłaby skrócić cykl. Zmiana dokonywana przez algorytm 2-opt polega na: podziale cyklu na 3 części: początek, środek oraz koniec, odwróceniu kolejność wierzchołków w części środkowej i ponownym połączeniu cyklu. Operacja zamiany przedstawiona jest pseudokodem z listingu 2. \\
 
 
 \begin{lstlisting}[caption={Główna część algorytmu}]
@@ -278,7 +279,7 @@ Algorytm 2-OPT [2] startuje z pewnego rozwiązania i przez wymianę par krawędz
 	{
 		poczatek = droga[ 0:a-1 ]
 		srodek = droga[ a:b-1]
-		konipodanejec = droga[ b: liczbawierzcholkow-1 ]
+		koniec = droga[ b: liczbawierzcholkow-1 ]
 		srodek = odwroc_kolejnosc( srodek )
 		nowa_droga = [ poczatek, srodek, koniec ]
 		
@@ -288,7 +289,7 @@ Algorytm 2-OPT [2] startuje z pewnego rozwiązania i przez wymianę par krawędz
 \end{lstlisting}
 
 
-Funkcja zmierz\_dlugosc\_drogi będzie zwracać wartość zapisaną w podanej na wejściu tablicy. Wartości tablicy będą się składać z wartości opisującej właściwą odległość w przestrzeni X-Y przemnożoną przez współczynnik opisujący "jakość drogi". Odległość musi być jednakowa w obu kierunkach, podczas kiedy współczynnik jakości może się różnić. Drogi jednokierunkowe będą symulowane poprzez nadanie bardzo dużego współczynnika. \\
+Funkcja zmierz\_dlugosc\_drogi będzie zwracać dlugość drogi. Drogi jednokierunkowe będą symulowane poprzez nadanie bardzo dużego współczynnika. \\
 
 Współrzędne wierzchołków będą generowane losowo z pewnego zakresu i zapisywane w tablica\_wierzcholkow. Wylosowana zostanie lista połączeń jednokierunkowych oraz kierunek połączenia. Koszty połączeń, zapisane w tablicy jakosc\_drogi. Zwiększenie kosztu polaczenia dla drog jednokierunkowych realizowane będzie przez funkcję wprowadz\_kierunek.
 
@@ -310,9 +311,6 @@ Wzpółczynnik drogi jednokierunkowej będzie przedmiotem naszego badania. \\
 		# stworz tablice zawierajaca wspolrzedne wierzcholkow w przestrzeni X-Y
 		tablica_wierzcholkow = losuj_polozenie(liczba_wiercholkow)
 
-		# stworz tablice 3-wymiarowa w ktorej zdefiniowany jest koszt 
-		# pokonania drogi pomiedzy 2 wierzcholkami w jednym z dwoch kierunkow
-		jakosc_drogi = losuj_jakosc_drogi( liczba_wiercholkow )
 		
 		# wylosuj zbior par wierzcholkow polaczonych droga jednokierunkowa
 		drogi_jednokierunkowe = losuj_drogi_jednokierunkowe(liczba_drog_jednokierunkowych)
@@ -358,16 +356,16 @@ Algorytm najbliższego sąsiada polega na odwiedzeniu, począwszy od wybranego w
 
 	najblizysz_sasiad(tablica_wierzcholkow, tablica_rozwiazan)
 	{
-		aktualny_wierzchołek = losuj_wierzcholek(tablica_wierzcholkow)
-		oznacz_jako_odwiedzony(tablica_wierzcholkow, aktualny_wierzchołek)
+		aktualny_wierzcholek = losuj_wierzcholek(tablica_wierzcholkow)
+		oznacz_jako_odwiedzony(tablica_wierzcholkow, aktualny_wierzcholek)
 		
 		while(liczba_nieodwiedzonych_wiezcholkow(tablica_wierzcholkow))
 		{
 			nowy_wierzcholek = znajdz_najblizszy_wierzcholek(tablica_wierzcholkow, 
-													aktualny_wierzchołek)
+													aktualny_wierzcholek)
 			dodaj(tablica_rozwiazan,nowy_wierzcholek)
 			oznacz_jako_odwiedzony(tablica_wierzcholkow, nowy_wierzcholek)
-			aktualny_wierzchołek = nowy_wierzcholek
+			aktualny_wierzcholek = nowy_wierzcholek
 		}
 	}
 
@@ -376,7 +374,11 @@ Algorytm najbliższego sąsiada polega na odwiedzeniu, począwszy od wybranego w
 
 
 Program testujący algorytm 2-opt powinien sprawdzić jaka musi być waga połączeń jednokierunkowych, aby algorytm nie wybierał połączeń "pod prąd". Program powinien wykonać się wiele razy na niezmiennym zbiorze wierzchołków i dróg jednokierunkowych. W kolejnych iteracjach koszt pokonania drogi jednokierunkowej będzie sukcesywnie zwiększany, aż do uzyskania wyniku nie zawierającego połączeń "pod prąd".
-Program testujący musi przyjmować przygotowane wcześniej: zbiór wierzchołków, tablicę jakości połączeń oraz tablicę dróg jednokierunkowych. W kolejnych iteracjach tablica koszt połączeń w tablicy jakości będzie stopniowo zwiększany. Wyniki działania algorytmu dla różnych wartości współczynnika zostaną zebrane oraz podsumowane.\\
+Program testujący musi przyjmować przygotowane wcześniej: zbiór wierzchołków, tablicę jakości połączeń oraz tablicę dróg jednokierunkowych. \\
+
+W kolejnych iteracjach koszt połączeń będzie stopniowo zwiększany (na przykład o rząd wielkości). Liczba prób zostanie ustalona eksperymentalnie. Trudo jest przewidywać jaki współczynnik kosztu będzie niezbędny, aby zapobiec wyborowi dróg wiodących pod prąd. Algorytm 2-opt ma skłonność do znajdowania lokalnych minimów funkcji kosztu, dlatego spodziewamy się, że koszt pojedynczego połączenia jednokierunkowego będzie musiał być porównywalny z kosztem pokonania całej drogi. \\
+
+Wyniki działania algorytmu dla różnych wartości współczynnika zostaną zebrane oraz podsumowane. Wykreślone zostaną zależności liczby kroków pod prąd od liczby połączeń jednokierunkowych oraz od współczynnika drogi jednokierunkowej. Dokonamy sprawdzenia w jakim stopniu wyniki są losowe poprzez przebadanie wielu grafów o tych samych parametrach. \\
 
 \newpage
 \begin{lstlisting}[caption={Funkcja testująca algorytm}]
@@ -407,7 +409,7 @@ Program testujący musi przyjmować przygotowane wcześniej: zbiór wierzchołk�
 
 
 \begin{enumerate}
-\item "Comparison of TSP Algorithms" - Byung-In Kim, Jae-Ik Shim, Min Zhang %https://pja.mykhi.org/4sem/NAI/rozne/Comparison%20of%20TSP%20Algorithms/Comparison%20of%20TSP%20Algorithms.PDF
+\item Byung-In Kim, Jae-Ik Shim, Min Zhang, “Comparison of TSP Algorithms” Project for Models in Facilities Planning and Materials Handling, December 1998. %https://pja.mykhi.org/4sem/NAI/rozne/Comparison%20of%20TSP%20Algorithms/Comparison%20of%20TSP%20Algorithms.PDF
 \item "A method for solving traveling salesman problems." - G. A. Croes
 \end{enumerate}
 
