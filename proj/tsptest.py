@@ -39,6 +39,19 @@ def wprowadz_jednokierunkowe( odleglosci, jednokierunkowe ):
 
 def losuj_drogi_jednokierunkowe( liczba ):
     jednokierunkowe = list(itertools.combinations(range(0,glob_liczba_wierzcholkow),2))
+
+    kierunek = numpy.random.random_integers(0,1,len(jednokierunkowe) )
+    
+    for i in xrange( len(jednokierunkowe) ) :
+        if jednokierunkowe[i][0] == jednokierunkowe[i][1]-1:
+            jednokierunkowe[i] = ( jednokierunkowe[i][1], jednokierunkowe[i][0] ) 
+
+        elif ( jednokierunkowe[i][0] == 0) and ( jednokierunkowe[i][1] == glob_liczba_wierzcholkow-1) :
+            jednokierunkowe[i] = ( glob_liczba_wierzcholkow-1, 0 )
+        else:
+            if kierunek[i] == 1 :
+                jednokierunkowe[i] = ( jednokierunkowe[i][1], jednokierunkowe[i][0] ) 
+                
     numpy.random.shuffle(jednokierunkowe)
     return jednokierunkowe[:liczba]
 
@@ -263,24 +276,32 @@ def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
         res.append( numpy.array( dane[k][wsp] ).mean(0)[3]/dlugosc_cyklu*100 )
         
     plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, res, kolor, label=label)
-        
+  
 #generuj_dane_wejsciowe( 10, [5], numpy.arange(0,1.,0.1,), "../wejsciowe2/" )
 #testuj( "../wejsciowe2/", "../wyjsciowe2/", "w0005*", [10, 100, 1000 ])
 
 
-dat5=numpy.load('../wyjsciowe2/0w0005_result.npy').item()
-dat20=numpy.load('../wyjsciowe2/0w0020_result.npy').item()
-dat50=numpy.load('../wyjsciowe2/0w0050_result.npy').item()
-dat100=numpy.load('../wyjsciowe2/0w0100_result.npy').item()
+#dat5=numpy.load('../wyjsciowe2/0w0005_result.npy').item()
+#dat20=numpy.load('../wyjsciowe2/0w0020_result.npy').item()
+#dat50=numpy.load('../wyjsciowe2/0w0050_result.npy').item()
+#dat100=numpy.load('../wyjsciowe2/0w0100_result.npy').item()
+#
+#plot_zle_od_ljednokierunkowych( dat5, 10, 'y-', 6, "n=5" )
+#plot_zle_od_ljednokierunkowych( dat20, 10, 'r-', 21, "n=20" )
+#plot_zle_od_ljednokierunkowych( dat50, 10, 'b-', 51, "n=50" )
+#plot_zle_od_ljednokierunkowych( dat100, 10, 'g-', 101, "n=100"  )
+#plt.legend( loc=2)
+#plt.xlabel( "Procent ilosci drog jednokierunkowych w grafie")
+#plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
+#plt.show()
 
-plot_zle_od_ljednokierunkowych( dat5, 10, 'y-', 6, "n=5" )
-plot_zle_od_ljednokierunkowych( dat20, 10, 'r-', 21, "n=20" )
-plot_zle_od_ljednokierunkowych( dat50, 10, 'b-', 51, "n=50" )
-plot_zle_od_ljednokierunkowych( dat100, 10, 'g-', 101, "n=100"  )
-plt.legend( loc=2)
-plt.xlabel( "Procent ilosci drog jednokierunkowych w grafie")
-plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
-plt.show()
+
+
+
+
+#glob_liczba_wierzcholkow = 1000
+#losuj_drogi_jednokierunkowe( 5000 )
+
 
 #
 #if losuj_nowy_graf:
