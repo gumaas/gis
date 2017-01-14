@@ -270,12 +270,6 @@ def testuj(dirname,wyjscie, pattern, wspolczynniki ):
     numpy.save( wyjscie + '/0' + filename, result )        
     return result
 
-def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
-    res =[]
-    for k in sorted( dane.keys() ):
-        res.append( numpy.array( dane[k][wsp] ).mean(0)[3]/dlugosc_cyklu*100 )
-        
-    plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, res, kolor, label=label)
 
 
 def test_generuj_dane( ):
@@ -293,23 +287,64 @@ def test_testuj():
     testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0050*", wsp )
     testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0100*", wsp )
 
-#dat5=numpy.load('../wyjsciowe2/0w0005_result.npy').item()
-#dat20=numpy.load('../wyjsciowe2/0w0020_result.npy').item()
-#dat50=numpy.load('../wyjsciowe2/0w0050_result.npy').item()
-#dat100=numpy.load('../wyjsciowe2/0w0100_result.npy').item()
-#
-#plot_zle_od_ljednokierunkowych( dat5, 10, 'y-', 6, "n=5" )
-#plot_zle_od_ljednokierunkowych( dat20, 10, 'r-', 21, "n=20" )
-#plot_zle_od_ljednokierunkowych( dat50, 10, 'b-', 51, "n=50" )
-#plot_zle_od_ljednokierunkowych( dat100, 10, 'g-', 101, "n=100"  )
-#plt.legend( loc=2)
-#plt.xlabel( "Procent ilosci drog jednokierunkowych w grafie")
-#plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
-#plt.show()
+
+def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
+    res =[]
+    for k in sorted( dane.keys() ):
+        res.append( numpy.array( dane[k][wsp] ).mean(0)[3]/dlugosc_cyklu*100 )
+        
+    plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, res, kolor, label=label)
+
+def zaleznosc_od_liczby_drog():
+    
+    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
+    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
+    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
+    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
+#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    wsp = 100
+    plot_zle_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
+    plot_zle_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
+    plot_zle_od_ljednokierunkowych( dat20, wsp, 'b-', 21, "n=20" )
+    plot_zle_od_ljednokierunkowych( dat50, 10, 'm-', 51, "n=50" )
+#    plot_zle_od_ljednokierunkowych( dat100, 10, 'y-', 101, "n=100"  )
+    plt.legend( loc=2)
+    plt.xlabel( "Procent ilosci drog jednokierunkowych w grafie")
+    plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
+    plt.show()
 
 
+def plot_zle_od_wspolczynnika( dane, jednokierprop, kolor, dlugosc_cyklu, label ):
+    res =[]
+    x = []
+    ljednokier=numpy.sort( dane.keys() )[ jednokierprop ]
+    for k in sorted( dane[ljednokier].keys() ):
+        res.append( numpy.array( dane[ljednokier][k] ).mean(0)[3]/dlugosc_cyklu*100 )
+        x.append(k)
+        
+    plt.semilogx(x, res, kolor, label=label)
+
+def zaleznosc_od_wspolczynnika():
+    
+    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
+    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
+    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
+    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
+#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    jednokier_idx = 5 
+    plot_zle_od_wspolczynnika( dat5, jednokier_idx, 'rx-', 6, "n=5" )
+    plot_zle_od_wspolczynnika( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
+    plot_zle_od_wspolczynnika( dat20, jednokier_idx, 'bx-', 21, "n=20" )
+    plot_zle_od_wspolczynnika( dat50, jednokier_idx, 'mx-', 51, "n=50" )
+#    plot_zle_od_wspolczynnika( dat100, jednokier_idx, 'cx-', 101, "n=100" )
+    plt.legend( loc=2)
+    plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
+    plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
+    plt.show()
 
 
+zaleznosc_od_liczby_drog()
+zaleznosc_od_wspolczynnika()
 
 #glob_liczba_wierzcholkow = 1000
 #losuj_drogi_jednokierunkowe( 5000 )
