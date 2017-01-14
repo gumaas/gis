@@ -250,9 +250,9 @@ def testuj(dirname,wyjscie, pattern, wspolczynniki ):
                 [ liczba_pod_prad_sasiad, pod_prad ]  = szukaj_pod_prad( j, cykl_sasiad )
                 [ liczba_pod_prad_2opt, pod_prad2 ]  = szukaj_pod_prad( j, cykl_2opt )
 
-               
+                dlugosc_znany = zmierz_cykl( range(0,glob_liczba_wierzcholkow)+ [0], odleglosci )
                 
-                tmp = [ dlugosc_sasiad, liczba_pod_prad_sasiad, dlugosc_2opt, liczba_pod_prad_2opt ]
+                tmp = [ dlugosc_sasiad, liczba_pod_prad_sasiad, dlugosc_2opt, liczba_pod_prad_2opt, dlugosc_znany ]
                 
                 
                 try:
@@ -276,10 +276,22 @@ def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
         res.append( numpy.array( dane[k][wsp] ).mean(0)[3]/dlugosc_cyklu*100 )
         
     plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, res, kolor, label=label)
-  
-#generuj_dane_wejsciowe( 10, [5], numpy.arange(0,1.,0.1,), "../wejsciowe2/" )
-#testuj( "../wejsciowe2/", "../wyjsciowe2/", "w0005*", [10, 100, 1000 ])
 
+
+def test_generuj_dane( ):
+    generuj_dane_wejsciowe( 50, [5], numpy.arange(0, 1.0 ,0.1 ), "../wejsciowe3/" )
+    generuj_dane_wejsciowe( 50, [10], numpy.arange(0, 1.0 ,0.1 ), "../wejsciowe3/" )
+    generuj_dane_wejsciowe( 50, [20], numpy.arange(0, 1.0 ,0.1 ), "../wejsciowe3/" )
+    generuj_dane_wejsciowe( 50, [50], numpy.arange(0, 1.0 ,0.1 ), "../wejsciowe3/" )
+    generuj_dane_wejsciowe( 50, [100], numpy.arange(0, 1.0 ,0.1 ), "../wejsciowe3/" )
+
+def test_testuj():
+    wsp = [ 1.5, 2, 5, 10, 100 ]
+    testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0005*", wsp )
+    testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0010*", wsp )
+    testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0020*", wsp )
+    testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0050*", wsp )
+    testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0100*", wsp )
 
 #dat5=numpy.load('../wyjsciowe2/0w0005_result.npy').item()
 #dat20=numpy.load('../wyjsciowe2/0w0020_result.npy').item()
