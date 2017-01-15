@@ -205,6 +205,8 @@ Należy zaimplementować (nietrywialny) algorytm rozwiązujący problem komiwoja
 
 Problem komiwojażera - zagadnienie optymalizacyjne, polegające na znalezieniu minimalnego cyklu Hamiltona w pełnym grafie ważonym.
 
+asdfa
+
 Nazwa pochodzi od typowej ilustracji problemu, przedstawiającej go z punktu widzenia wędrownego sprzedawcy (komiwojażera): dane jest n miast, które komiwojażer ma odwiedzić, oraz odległość/cena podróży/czas podróży pomiędzy każdą parą miast. Celem jest znalezienie najkrótszej/najtańszej/najszybszej drogi łączącej wszystkie miasta, zaczynającej się i kończącej się w określonym punkcie.
 \\
 
@@ -298,8 +300,8 @@ Współczynnik drogi jednokierunkowej będzie przedmiotem naszego badania. \\
 \begin{itemize}
 \item tablica\_wierzcholkow[wierzcholek]=[polożenie\_X, położenie\_Y] - tablica przechowująca współrzędne wierzchołków.
 \item jakosc\_drogi[wierzcholek1][wierzcholek2][kierunek] = [jakosc\_drogi] - jakość drogi pomiędzy wierzchołkiem1 a wierzchołkiem2 w jednym z dwóch kierunków
-\item drogi\_jednokierunkowe[nr] = [wierzcholek1, wierzcholek2, kierunek] - lista dróg jednokierunkowych. Wartości tabeli zaweierają parę wierzchołków oraz kierunek połączenia.
-\item losoj\_polozenie(k) -  zwraca losowe wartosci położenia w przestrzeni X-Y
+\item drogi\_jednokierunkowe[nr] = [wierzcholek1, wierzcholek2, kierunek] - lista dróg jednokierunkowych. Wartości tabeli zawierają parę wierzchołków oraz kierunek połączenia.
+\item losoj\_polozenie(k) -  zwraca losowe wartości położenia w przestrzeni X-Y
 \item losuj\_jakosc\_drogi( k) -zwraca losową tablicę opisującą jakość połączenia pomiędzy dwoma punktami w obu kierunkach
 \item losuj\_drogi\_jednokierunkowe(k) - zwraca losową tablice dróg jednokierunkowych
 \end{itemize}
@@ -404,6 +406,58 @@ Wyniki działania algorytmu dla różnych wartości współczynnika zostaną zeb
 
 \end{lstlisting}
 
+\section{Sprawozdanie 3}
+
+Sprawozdanie 3 składa się z następujących zagadnień: \\
+
+\begin{itemize}
+
+	\item Generacja danych testowych \ref{ss_generacja} - losowane współrzędnych wierzchołków grafu w przestrzeni X-Y oraz listy połączeń jednokierunkowych. Krótki opis tego kroku znajduje się w sekcji.
+	\item Testów algorytmu \ref{ss_testy} - uruchomienie algorytmu 2-opt na różnych grafach z różnymi wartościami współczynnika kosztu drogi jednokierunkowej.
+	\item Prezentacja oraz omówienie wyników \ref{ss_wyniki} - zaprezentowane zostały znalezione zależności.
+	\item Wnioski \ref{ss_wnioski} - ostatnia część sprawozdania zawiera interpretację wyników. 
+	\end{itemize}
+
+\subsection{Generacja danych testowych}
+\label{ss_generacja}
+
+Głównym celem prezentowanego projektu była identyfikacja warunków, w których wybrany algorytm rozwiązujący problem komiwojażera w obecności ulic jednokierunkowych wybiera rozwiązanie zawierające odcinki wiodące pod prąd. \\
+
+Algorytm 2-opt działa na grafie nieskierowanym, w którym wszystkie pary wierzchołków są połączone drogą o pewnym koszcie. Na potrzeby naszego projektu, zakładamy że każdy wierzchołek ma przyporządkowane położenie w przestrzeni X-Y, a koszt drogi jest równy odległości pomiędzy wierzchołkami. Zgodnie z treścią zadania niektóre drogi muszą być jednokierunkowe. 
+
+Ponieważ nie chcemy modyfikować samego algorytmu, znacząco zwiększamy koszt drogi w kierunku "pod prad". Skoro wszystkie wierzchołki są połączone ze wszystkimi innymi, to musimy pamiętać, że jeżeli droga z jednego wierzchołka do drugiego jest zabroniona, to droga w przeciwną stronę musi być dozwolona. \\
+
+
+Musimy również pamiętać, że zgodnie z treścią zadania interesujące są jedynie grafy Hamiltonowskie. Możliwość generacji całkowicie losowych grafów oraz zbiorów ulic jednokierunkowych została odrzucona, ponieważ konieczne byłoby sprawdzenie czy wylosowany graf posiada dozwolone rozwiązanie. Jedyną metodą pozwalającą sprawdzić, czy dowolny graf posiada cykl Hamiltona (którą udało nam się znaleźć) jest sprawdzenie wszystkich możliwych cykli, co jest problemem o ogromnej złożoności obliczeniowej.
+
+Zdecydowaliśmy zawsze generować graf w którym żadna z dróg składających się na cykl 0->1->2-> ... -> n-1 -> 0 nie wiedzie pod prąd. Rozwiązanie jest proste w implementacji, ponieważ wymaga jedynie usunięcia odpowiednich dróg ze zbioru, z którego losowane są drogi pod prąd. Nie znaleźliśmy powodu, dla którego taki cykl miałoby wpłynąć na wynik testu. \\
+
+Pierwotnie zakładaliśmy losowanie par wierzchołków, pomiędzy którymi droga będzie zabroniona (zwiększony koszt), ale okazało się to bardzo nieefektywne obliczeniowo. Po wylosowaniu nowej pary należało sprawdzić czy taka para (lub w przeciwnym kierunku) nie została wylosowana wcześniej oraz czy nie wchodzi ona w skład założonego poprawnego cyklu. Przy dużej liczbie dróg zabronionych takie rozwiązanie okazało się niezwykle wolne. \\
+
+Znacznie szybsze okazało się wygenerowanie listy wszystkich możliwych kombinacji par liczb całkowitych z przedziału [0, liczba\_wierzcholkow-1], wprowadzenie losowego kierunku, usunięcie par wchodzących w skład cyklu referencyjnego i wylosowanie zadanej liczby dróg jednokierunkowych. Wprowadzenie kierunku było konieczne, ponieważ funkcja biblioteczna generowała pary w taki sposób, że pierwsza liczba z pary była zawsze mniejsza.
+
+
+
+%Ponadto, aby możliwe było wiarygodne porównanie skuteczności algorytmu 2-opt dla grafów o różnej liczbie wierzchołków, konieczne było generowanie liczby dróg jednokierunkowych będącej znaną częścią wszystkich dróg możliwych. Oczywiste jest, że 10 odcinków jednokierunkowych będzie większym utrudnieniem dla algorytmu w grafie zawierającym 10 wierzchołków niż w grafie zawierającym 100 wierzchołków. 
+%
+%Oba powyższe problemy udało się rozwiązać. Generujemy listę wszystkich możliwych kombinacji par liczb całkowitych z przedziału [0, liczba\_wierzcholkow-1] i wybieramy z nich od 0 do 90\% par (z krokiem 10\%). Otrzymane pary są zawsze rosnące np dla 3 wierzchołków otrzymaliśmy: [ [0,1], [0,2], [0,3], [1,2], [1,3], [2,3] ].
+
+
+
+\subsection{Testy algorytmu}
+\label{ss_testy}
+
+\subsection{Wyniki}
+\label{ss_wyniki}
+
+\subsubsection{Odsetek dróg jednokierunkowych w grafie}
+
+\subsubsection{Współczynnik drogi jednokierunkowej}
+
+\subsubsection{Badanie warunków generujących zabronione rozwiązania}
+
+\subsection{Wnioski}
+\label{ss_wnioski} 
 
 \section{Bibliografia}
 
