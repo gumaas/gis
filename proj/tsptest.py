@@ -291,9 +291,9 @@ def test_testuj():
 def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
     res =[]
     for k in sorted( dane.keys() ):
-        res.append( numpy.array( dane[k][wsp] ).mean(0)[3]/dlugosc_cyklu*100 )
+        res.append( numpy.array( dane[k][wsp] ).mean(0)[3]/dlugosc_cyklu )
         
-    plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, res, kolor, label=label)
+    plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, numpy.multiply( res,100), kolor, label=label)
 
 def zaleznosc_od_liczby_drog():
     
@@ -301,16 +301,16 @@ def zaleznosc_od_liczby_drog():
     dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
     dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
     dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
     wsp = 100
     plot_zle_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
     plot_zle_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
     plot_zle_od_ljednokierunkowych( dat20, wsp, 'b-', 21, "n=20" )
     plot_zle_od_ljednokierunkowych( dat50, wsp, 'm-', 51, "n=50" )
-#    plot_zle_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
+    plot_zle_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
     plt.legend( loc=2)
-    plt.xlabel( "Procent ilosci drog jednokierunkowych w grafie")
-    plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
+    plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
+    plt.ylabel( "Odsetek liczby odcinkow pokonanych pod prad [%]")
     plt.show()
 
 
@@ -319,10 +319,10 @@ def plot_zle_od_wspolczynnika( dane, jednokierprop, kolor, dlugosc_cyklu, label 
     x = []
     ljednokier=numpy.sort( dane.keys() )[ jednokierprop ]
     for k in sorted( dane[ljednokier].keys() ):
-        res.append( numpy.array( dane[ljednokier][k] ).mean(0)[3]/dlugosc_cyklu*100 )
+        res.append( numpy.array( dane[ljednokier][k] ).mean(0)[3]/dlugosc_cyklu )
         x.append(k)
         
-    plt.semilogx(x, res, kolor, label=label)
+    plt.semilogx(numpy.multiply(x,100), res, kolor, label=label)
 
 def zaleznosc_od_wspolczynnika():
     
@@ -330,16 +330,16 @@ def zaleznosc_od_wspolczynnika():
     dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
     dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
     dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
     jednokier_idx = 5 
     plot_zle_od_wspolczynnika( dat5, jednokier_idx, 'rx-', 6, "n=5" )
     plot_zle_od_wspolczynnika( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
     plot_zle_od_wspolczynnika( dat20, jednokier_idx, 'bx-', 21, "n=20" )
     plot_zle_od_wspolczynnika( dat50, jednokier_idx, 'mx-', 51, "n=50" )
-#    plot_zle_od_wspolczynnika( dat100, jednokier_idx, 'cx-', 101, "n=100" )
-    plt.legend( loc=2)
+    plot_zle_od_wspolczynnika( dat100, jednokier_idx, 'yx-', 101, "n=100" )
+    plt.legend( loc=1)
     plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
-    plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
+    plt.ylabel( "Odsetek liczby odcinkow pokonanych pod prad [%]")
     plt.show()
 
 def plot_rozrzut_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
@@ -355,16 +355,16 @@ def rozrzut_od_liczby_drog():
     dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
     dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
     dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
     wsp = 100
     plot_rozrzut_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
     plot_rozrzut_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
     plot_rozrzut_od_ljednokierunkowych( dat20, wsp, 'b-', 21, "n=20" )
     plot_rozrzut_od_ljednokierunkowych( dat50, wsp, 'm-', 51, "n=50" )
-#    plot_zle_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
+    plot_rozrzut_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
     plt.legend( loc=2)
-    plt.xlabel( "Procent ilosci drog jednokierunkowych w grafie")
-    plt.ylabel( "Odchylenie standardowe ilosci drog jednokierunkowych")
+    plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
+    plt.ylabel( "Odchylenie standardowe odsetka cykli niedozwolonych [%]")
     plt.show()
 
 
@@ -384,16 +384,16 @@ def rozrzut_od_wspolczynnika():
     dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
     dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
     dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
     jednokier_idx = 5 
     plot_rozrzut_od_wspolczynnika( dat5, jednokier_idx, 'rx-', 6, "n=5" )
     plot_rozrzut_od_wspolczynnika( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
     plot_rozrzut_od_wspolczynnika( dat20, jednokier_idx, 'bx-', 21, "n=20" )
     plot_rozrzut_od_wspolczynnika( dat50, jednokier_idx, 'mx-', 51, "n=50" )
-#    plot_rozrzut_od_wspolczynnika( dat100, jednokier_idx, 'cx-', 101, "n=100" )    
-    plt.legend( loc=2)
+    plot_rozrzut_od_wspolczynnika( dat100, jednokier_idx, 'yx-', 101, "n=100" )    
+    plt.legend( loc=1)
     plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
-    plt.ylabel( "Procent ilosci krokow pod prad w stosunku do dlugosci cyklu")
+    plt.ylabel( "Odsetetk odcinkow pokonanych pod prad [%]")
     plt.show()
 
 
@@ -403,25 +403,30 @@ def liczba_krotszych_pod_prad( dane ):
 #    2 - dlugosc drogi znalezionej przez 2opt
 #    jak roznica dodatnia, to znaleziona droga krotsza niz referencyjna
 #    jak roznica ujemna to znaleziona jest dluzsza niz referencyjna
-    roznice = numpy.asarray( dane )[:,4] - numpy.asarray( dane )[:,2]
+    danearr=numpy.asarray( dane )    
+    roznice = danearr[:,4] - danearr[:,2]
     krotsza_pod_prad = 0
+    wszystkie = 0.
     for i in xrange( len(roznice ) ):
 #        jezeli bylo pod prad
         if dane[i][3 ] >0 :
+            wszystkie += 1
             if roznice[i] > 0 :
                 krotsza_pod_prad += 1
-    
-    return numpy.asarray( dane[:][3 ]).sum()/krotsza_pod_prad
+    if wszystkie == 0:
+        return 1
+    else:
+        return numpy.divide( krotsza_pod_prad,wszystkie)
     
 def plot_krotsze_pod_prad_wsp( dane, jednokierprop, kolor, dlugosc_cyklu, label ):
     res =[]
     x = []
     ljednokier=numpy.sort( dane.keys() )[ jednokierprop ]
     for k in sorted( dane[ljednokier].keys() ):
-        res.append( liczba_krotszych_pod_prad( dane[ljednokier][k] *100 ) )
+        res.append( liczba_krotszych_pod_prad( dane[ljednokier][k] ) )
         x.append(k)
         
-    plt.semilogx(x, res, kolor, label=label)
+    plt.semilogx(x, numpy.multiply( res, 100), kolor, label=label)
 
 def krotsze_pod_prad_od_wsp():
     
@@ -429,19 +434,46 @@ def krotsze_pod_prad_od_wsp():
     dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
     dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
     dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
-    jednokier_idx = 5 
+    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    jednokier_idx =  3
     plot_krotsze_pod_prad_wsp( dat5, jednokier_idx, 'rx-', 6, "n=5" )
     plot_krotsze_pod_prad_wsp( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
     plot_krotsze_pod_prad_wsp( dat20, jednokier_idx, 'bx-', 21, "n=20" )
     plot_krotsze_pod_prad_wsp( dat50, jednokier_idx, 'mx-', 51, "n=50" )
-#    plot_rozrzut_od_wspolczynnika( dat100, jednokier_idx, 'cx-', 101, "n=100" )    
+    plot_krotsze_pod_prad_wsp( dat100, jednokier_idx, 'yx-', 101, "n=100" )    
     plt.legend( loc=2)
     plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
-    plt.ylabel( "Odsetek niedozwolonych cykli krotszych niz referencyjnych")
+    plt.ylabel( "Odsetek niedozwolonych cykli krotszych niz referencyjny [%]")
+    plt.ylim((-10,110))    
     plt.show()
+
+
+def plot_krotsze_pod_prad_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
+    res =[]
+    for k in sorted( dane.keys() ):
+        res.append( liczba_krotszych_pod_prad( dane[k][wsp] ) )
+        
+    plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, numpy.multiply( res,100), kolor, label=label)
+
+def krotsze_pod_prad_od_liczby_drog():
     
-    
+    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
+    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
+    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
+    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
+    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    wsp = 100
+    plot_krotsze_pod_prad_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
+    plot_krotsze_pod_prad_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
+    plot_krotsze_pod_prad_od_ljednokierunkowych( dat20, wsp, 'b-', 21, "n=20" )
+    plot_krotsze_pod_prad_od_ljednokierunkowych( dat50, wsp, 'm-', 51, "n=50" )
+    plot_krotsze_pod_prad_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
+    plt.legend( loc=2)
+    plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
+    plt.ylabel( "Odsetek niedozwolonych cykli krotszych niz referencyjny [%]")
+    plt.ylim((-10,110))    
+    plt.show()
+
 
 zaleznosc_od_liczby_drog()
 zaleznosc_od_wspolczynnika()
@@ -449,6 +481,7 @@ rozrzut_od_liczby_drog()
 rozrzut_od_wspolczynnika()
 
 krotsze_pod_prad_od_wsp( )
+krotsze_pod_prad_od_liczby_drog()
 #glob_liczba_wierzcholkow = 1000
 #losuj_drogi_jednokierunkowe( 5000 )
 
