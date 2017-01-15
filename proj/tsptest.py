@@ -22,6 +22,7 @@ wspolczynnik_drogi_jednokierunkowej = 9999
 
 glob_liczba_wierzcholkow = 500
 glob_liczba_jednokierunkowych = 5000
+glob_sciezka_obrazkow = "../images/"
 
 
 
@@ -202,7 +203,14 @@ def generuj_dane_wejsciowe( liczba, zbior_liczb_wiercholkow, zbior_liczb_jednoki
                     print "dlugosc wektora: %d, nazwapliku: %d" % ( len(j), glob_liczba_jednokierunkowych  )
                     sys.exit("Niezgodna liczba drog jednokierunkowych")
                 numpy.save( katalog+filename, [v,j] )
-                
+
+
+def polacz_dane_wyjsciowe_wsp( d1, d2 ):
+    new = {}
+    for k in d1.keys():
+        new[k] = dict( d1[k].items()+d2[k].items() )
+    
+    return new            
 
 def parsename( name ):
     v = int( name.split('_')[0][1:] )
@@ -287,6 +295,13 @@ def test_testuj():
     testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0050*", wsp )
     testuj( "../wejsciowe3/", "../wyjsciowe3/", "w0100*", wsp )
 
+def test_testuj_wiecej():
+    wsp = [ 1000, 10000 ]
+    testuj( "../wejsciowe3/", "../wyjsciowe4/", "w0005*", wsp )
+    testuj( "../wejsciowe3/", "../wyjsciowe4/", "w0010*", wsp )
+    testuj( "../wejsciowe3/", "../wyjsciowe4/", "w0020*", wsp )
+    testuj( "../wejsciowe3/", "../wyjsciowe4/", "w0050*", wsp )
+    testuj( "../wejsciowe3/", "../wyjsciowe4/", "w0100*", wsp )
 
 def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
     res =[]
@@ -297,11 +312,23 @@ def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
 
 def zaleznosc_od_liczby_drog():
     
-    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
-    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
-    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
-    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    dat5 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0005_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0005_result.npy').item() )    
+    dat10 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0010_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0010_result.npy').item() )    
+    dat20 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0020_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0020_result.npy').item() )    
+    dat50 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0050_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0050_result.npy').item() )    
+    dat100 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0100_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0100_result.npy').item() )    
+#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    
     wsp = 100
     plot_zle_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
     plot_zle_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
@@ -311,6 +338,7 @@ def zaleznosc_od_liczby_drog():
     plt.legend( loc=2)
     plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
     plt.ylabel( "Odsetek liczby odcinkow pokonanych pod prad [%]")
+    plt.savefig(glob_sciezka_obrazkow+"zleodc_njedn.pdf")    
     plt.show()
 
 
@@ -322,15 +350,27 @@ def plot_zle_od_wspolczynnika( dane, jednokierprop, kolor, dlugosc_cyklu, label 
         res.append( numpy.array( dane[ljednokier][k] ).mean(0)[3]/dlugosc_cyklu )
         x.append(k)
         
-    plt.semilogx(numpy.multiply(x,100), res, kolor, label=label)
+    plt.semilogx(x, numpy.multiply(res,100), kolor, label=label)
 
 def zaleznosc_od_wspolczynnika():
     
-    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
-    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
-    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
-    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    dat5 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0005_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0005_result.npy').item() )    
+    dat10 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0010_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0010_result.npy').item() )    
+    dat20 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0020_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0020_result.npy').item() )    
+    dat50 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0050_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0050_result.npy').item() )    
+    dat100 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0100_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0100_result.npy').item() )    
+#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    
     jednokier_idx = 5 
     plot_zle_od_wspolczynnika( dat5, jednokier_idx, 'rx-', 6, "n=5" )
     plot_zle_od_wspolczynnika( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
@@ -340,7 +380,9 @@ def zaleznosc_od_wspolczynnika():
     plt.legend( loc=1)
     plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
     plt.ylabel( "Odsetek liczby odcinkow pokonanych pod prad [%]")
+    plt.savefig(glob_sciezka_obrazkow+"zleodc_wsp.pdf")    
     plt.show()
+    
 
 def plot_rozrzut_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
     res =[]
@@ -351,11 +393,23 @@ def plot_rozrzut_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label )
 
 def rozrzut_od_liczby_drog():
     
-    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
-    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
-    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
-    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    dat5 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0005_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0005_result.npy').item() )    
+    dat10 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0010_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0010_result.npy').item() )    
+    dat20 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0020_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0020_result.npy').item() )    
+    dat50 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0050_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0050_result.npy').item() )    
+    dat100 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0100_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0100_result.npy').item() )    
+#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    
     wsp = 100
     plot_rozrzut_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
     plot_rozrzut_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
@@ -365,6 +419,8 @@ def rozrzut_od_liczby_drog():
     plt.legend( loc=2)
     plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
     plt.ylabel( "Odchylenie standardowe odsetka cykli niedozwolonych [%]")
+    
+    plt.savefig(glob_sciezka_obrazkow+"rozrzut_njedn.pdf")    
     plt.show()
 
 
@@ -380,11 +436,23 @@ def plot_rozrzut_od_wspolczynnika( dane, jednokierprop, kolor, dlugosc_cyklu, la
 
 def rozrzut_od_wspolczynnika():
     
-    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
-    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
-    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
-    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    dat5 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0005_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0005_result.npy').item() )    
+    dat10 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0010_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0010_result.npy').item() )    
+    dat20 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0020_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0020_result.npy').item() )    
+    dat50 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0050_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0050_result.npy').item() )    
+    dat100 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0100_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0100_result.npy').item() )    
+#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    
     jednokier_idx = 5 
     plot_rozrzut_od_wspolczynnika( dat5, jednokier_idx, 'rx-', 6, "n=5" )
     plot_rozrzut_od_wspolczynnika( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
@@ -393,7 +461,9 @@ def rozrzut_od_wspolczynnika():
     plot_rozrzut_od_wspolczynnika( dat100, jednokier_idx, 'yx-', 101, "n=100" )    
     plt.legend( loc=1)
     plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
-    plt.ylabel( "Odsetetk odcinkow pokonanych pod prad [%]")
+    plt.ylabel( "Odchylenie standardowe odsetka cykli niedozwolonych [%]")
+    
+    plt.savefig(glob_sciezka_obrazkow+"zleodc_wsp.pdf")    
     plt.show()
 
 
@@ -430,11 +500,24 @@ def plot_krotsze_pod_prad_wsp( dane, jednokierprop, kolor, dlugosc_cyklu, label 
 
 def krotsze_pod_prad_od_wsp():
     
-    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
-    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
-    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
-    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+      
+    dat5 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0005_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0005_result.npy').item() )    
+    dat10 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0010_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0010_result.npy').item() )    
+    dat20 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0020_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0020_result.npy').item() )    
+    dat50 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0050_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0050_result.npy').item() )    
+    dat100 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0100_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0100_result.npy').item() )    
+#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    
     jednokier_idx =  3
     plot_krotsze_pod_prad_wsp( dat5, jednokier_idx, 'rx-', 6, "n=5" )
     plot_krotsze_pod_prad_wsp( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
@@ -445,6 +528,8 @@ def krotsze_pod_prad_od_wsp():
     plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
     plt.ylabel( "Odsetek niedozwolonych cykli krotszych niz referencyjny [%]")
     plt.ylim((-10,110))    
+    
+    plt.savefig(glob_sciezka_obrazkow+"krotsze_wsp.pdf")    
     plt.show()
 
 
@@ -457,31 +542,62 @@ def plot_krotsze_pod_prad_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu
 
 def krotsze_pod_prad_od_liczby_drog():
     
-    dat5=numpy.load('../wyjsciowe3/0w0005_result.npy').item()
-    dat10=numpy.load('../wyjsciowe3/0w0010_result.npy').item()     
-    dat20=numpy.load('../wyjsciowe3/0w0020_result.npy').item()
-    dat50=numpy.load('../wyjsciowe3/0w0050_result.npy').item()
-    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
-    wsp = 100
+    dat5 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0005_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0005_result.npy').item() )    
+    dat10 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0010_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0010_result.npy').item() )    
+    dat20 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0020_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0020_result.npy').item() )    
+    dat50 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0050_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0050_result.npy').item() )    
+    dat100 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0100_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0100_result.npy').item() )    
+#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
+    
+    wsp = 10000
     plot_krotsze_pod_prad_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
     plot_krotsze_pod_prad_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
     plot_krotsze_pod_prad_od_ljednokierunkowych( dat20, wsp, 'b-', 21, "n=20" )
     plot_krotsze_pod_prad_od_ljednokierunkowych( dat50, wsp, 'm-', 51, "n=50" )
-    plot_krotsze_pod_prad_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
+#    plot_krotsze_pod_prad_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
     plt.legend( loc=2)
     plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
     plt.ylabel( "Odsetek niedozwolonych cykli krotszych niz referencyjny [%]")
     plt.ylim((-10,110))    
+    
+    plt.savefig(glob_sciezka_obrazkow+"krotsze_jednokier.pdf")    
     plt.show()
 
+def rysuj_wykresy():
 
-zaleznosc_od_liczby_drog()
-zaleznosc_od_wspolczynnika()
-rozrzut_od_liczby_drog()
-rozrzut_od_wspolczynnika()
+    global glob_sciezka_obrazkow
+    glob_sciezka_obrazkow="../images/"
+    
+    if not os.path.isdir( glob_sciezka_obrazkow ):
+        os.mkdir(glob_sciezka_obrazkow)
+            
+    zaleznosc_od_liczby_drog()
+    zaleznosc_od_wspolczynnika()
+    rozrzut_od_liczby_drog()
+    rozrzut_od_wspolczynnika()
+    
+    krotsze_pod_prad_od_wsp( )
+    krotsze_pod_prad_od_liczby_drog()
+    
 
-krotsze_pod_prad_od_wsp( )
-krotsze_pod_prad_od_liczby_drog()
+dat5 = polacz_dane_wyjsciowe_wsp(
+            numpy.load('../wyjsciowe3/0w0005_result.npy').item(),
+            numpy.load('../wyjsciowe4/0w0005_result.npy').item() )
+
+    
+if __name__ == "__main__":
+    rysuj_wykresy()
+    
 #glob_liczba_wierzcholkow = 1000
 #losuj_drogi_jednokierunkowe( 5000 )
 
