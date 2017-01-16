@@ -434,10 +434,15 @@ Zdecydowaliśmy zawsze generować graf w którym żadna z dróg składających s
 
 Pierwotnie zakładaliśmy losowanie par wierzchołków, pomiędzy którymi droga będzie zabroniona (zwiększony koszt), ale okazało się to bardzo nieefektywne obliczeniowo. Po wylosowaniu nowej pary należało sprawdzić czy taka para (lub w przeciwnym kierunku) nie została wylosowana wcześniej oraz czy nie wchodzi ona w skład założonego poprawnego cyklu. Przy dużej liczbie dróg zabronionych takie rozwiązanie okazało się niezwykle wolne. \\
 
-Znacznie szybsze okazało się wygenerowanie listy wszystkich możliwych kombinacji par liczb całkowitych z przedziału [0, liczba\_wierzcholkow-1], wprowadzenie losowego kierunku, usunięcie par wchodzących w skład cyklu referencyjnego i wylosowanie zadanej liczby dróg jednokierunkowych. Wprowadzenie kierunku było konieczne, ponieważ funkcja biblioteczna generowała pary w taki sposób, że pierwsza liczba z pary była zawsze mniejsza.
+Znacznie szybsze okazało się wygenerowanie listy wszystkich możliwych kombinacji par liczb całkowitych z przedziału [0, liczba\_wierzcholkow-1], wprowadzenie losowego kierunku, usunięcie par wchodzących w skład cyklu referencyjnego i wylosowanie zadanej liczby dróg jednokierunkowych. Wprowadzenie kierunku było konieczne, ponieważ funkcja biblioteczna generowała pary w taki sposób, że pierwsza liczba z pary była zawsze mniejsza. \\
 
+Grafy testowe mogą być generowane z różną liczbą wierzchołków oraz dróg jednokierunkowych. Lista zawierająca współrzędne wierzchołków w przestrzeni X-Y (każda ze współrzędnych jest z zakresu [0;1]) oraz lista zabronionych dróg w grafie zapisywane są do pliku.
 
-
+Wygenerowane zostało po 50 grafów dla każdej z kombinacji:
+\begin{itemize}
+\item wierzchołki: 5, 10, 20, 50 oraz 100
+\item drogi jednokierunkowe: 0\%, 10\%, 20\%, 30\%, 40\%, 50\%, 60\%, 70\%, 80\%, 90\% wszystkich dróg w grafie
+\end{itemize}
 %Ponadto, aby możliwe było wiarygodne porównanie skuteczności algorytmu 2-opt dla grafów o różnej liczbie wierzchołków, konieczne było generowanie liczby dróg jednokierunkowych będącej znaną częścią wszystkich dróg możliwych. Oczywiste jest, że 10 odcinków jednokierunkowych będzie większym utrudnieniem dla algorytmu w grafie zawierającym 10 wierzchołków niż w grafie zawierającym 100 wierzchołków. 
 %
 %Oba powyższe problemy udało się rozwiązać. Generujemy listę wszystkich możliwych kombinacji par liczb całkowitych z przedziału [0, liczba\_wierzcholkow-1] i wybieramy z nich od 0 do 90\% par (z krokiem 10\%). Otrzymane pary są zawsze rosnące np dla 3 wierzchołków otrzymaliśmy: [ [0,1], [0,2], [0,3], [1,2], [1,3], [2,3] ].
@@ -447,17 +452,105 @@ Znacznie szybsze okazało się wygenerowanie listy wszystkich możliwych kombina
 \subsection{Testy algorytmu}
 \label{ss_testy}
 
+Testy algorytmu rozpoczynają się od wczytania z pliku list wierzchołków oraz dróg jednokierunkowych. Tworzona jest macierz sąsiedztwa zawierająca koszt dróg odpowiadający odległości pomiędzy wierzchołkami, a następnie zwiększana o współczynnik drogi jednokierunkowej.
+
+Tablica sąsiedztwa wykorzystywana jest przez funkcję tworzącą cykl Hamiltona na podstawie algorytmu najbliższego sąsiada. Ten cykl optymalizowany jest przez algorytm 2-opt. \\
+
+Test powtarzany jest dla każdego z 50 grafów, w każdej z kombinacji parametrów \ref{ss_generacja}, dla współczynnika kosztu o wartościach: 1.5, 2, 5, 10, 100, 1000, 10000. \\
+
+Wykonanie wszystkich testów zajmuje około 8 godzin, więc aby nie trzeba było ich powtarzać, wyniki każdego z nich zapisywane są do pliku. \\
+
+Należy zwrócić uwagę, że liczby dróg jednokierunkowych różnią się w zależności od liczby wierzchołków. Zachowana jest za to proporcja liczby dróg jednokierunkowych do wszystkich dróg w grafie. 
+
+Wydaje się oczywiste, że 10 odcinków jednokierunkowych będzie większym utrudnieniem dla algorytmu w grafie zawierającym 10 wierzchołków (45 dróg) niż w grafie zawierającym 100 wierzchołków (4950 dróg). 
+
+
 \subsection{Wyniki}
 \label{ss_wyniki}
 
 \subsubsection{Odsetek dróg jednokierunkowych w grafie}
+Najbardziej oczywistym testem wydawało się sprawdzenie skuteczności algorytmu w zależności od ilości dróg jednokierunkowych.
+
+\begin{figure}
+\includegraphics{"../images/zleodc_njedn_w2"}
+\includegraphics{"../images/zleodc_njedn_w10000"}
+\caption{Zależność liczby odcinków pod prąd (w stosunku do długości cyklu) od odsetka liczby dróg jednokierunkowych w grafie.}
+\label{fig_drogi_jednokier}
+\end{figure}
+Na wykresie \ref{fig_drogi_jednokier} widać, że im więcej jest dróg jednokierunkowych, tym częściej algorytm wybiera drogę pod prąd. 
+
+Zaskakująca może być wyższy odsetek zabronionych dróg dla grafów o małej liczbie wierzchołków. 
+
+Zależność została zaprezentowana dla współczynnika drogi jednokierunkowej równego 2 oraz 10000. Przy małym współczynniku liczba dróg pod prąd rośnie prawie liniowo. Współczynnik jest za mały, żeby istotnie wpłynął na działanie algorytmu. Przy dużym współczynniku algorytm unika dróg pod prąd. \\
+
+\begin{figure}
+\includegraphics{"../images/zlecykl_njedn_w2"}
+\includegraphics{"../images/zlecykl_njedn_w10000"}
+\caption{Zależność odsetku rozwiązań dla których rozwiązanie zawiera drogi pod prąd od odsetka liczby dróg jednokierunkowych w grafie.}
+\label{fig_cykle_jednokier}
+\end{figure}
+
+Zastanawiający wynik dla grafów o małej liczbie wierzchołków skłonił nas do sprawdzenia jak wiele rozwiązań zawiera przynajmniej jeden odcinek pokonany pod prąd. Zależność zilustrowana na wykresie \ref{fig_cykle_jednokier}.
+
+Wydaje się, że ta zależność jest bardziej adekwatna do tematu projektu, ponieważ pokazuje, przy jakim zagęszczeniu dróg jednokierunkowych można spodziewać się rozwiązań bezbłędnych.
+
+Na wykresie \ref{fig_cykle_jednokier} jeszcze wyraźniej widać, że zbyt mały współczynnik drogi jednokierunkowej nie wpływa na działanie algorytmu. Dla współczynnika równego 2, liczba niedozwolonych rozwiązań rośnie bardzo szybko ponieważ wybranie takie rozwiązania jest bardziej prawdopodobne.
 
 \subsubsection{Współczynnik drogi jednokierunkowej}
 
+Poprzednie wykresy pokazują w pewnym stopniu wpływ wartości współczynnika na wyniki, ale dokładniejsze zbadanie tej zależności było konieczne.
+
+Wykresy \ref{fig_odc_wsp} oraz \ref{fig_cykle_wsp} sugerują, że wartość współczynnika ma niewielkie znaczenie dla wartości wyższych niż 10.
+
+\begin{figure}
+\includegraphics{"../images/zleodc_wsp_j2"}
+\includegraphics{"../images/zleodc_wsp_j5"}
+\caption{Zależność stosunku dróg pokonanych pod prąd do długości cyklu od wartości współczynnika kosztu.}
+\label{fig_odc_wsp}
+\end{figure}
+
+\begin{figure}
+\includegraphics{"../images/zlecykle_wsp_j2"}
+\includegraphics{"../images/zlecykle_wsp_j5"}
+\caption{Zależność odsetka cykli zawierających niedozwolone rozwiązania od wartości współczynnika kosztu.}
+\label{fig_cykle_wsp}
+\end{figure}
+
 \subsubsection{Badanie warunków generujących zabronione rozwiązania}
+
+Na koniec zdecydowaliśmy się zbadać, dlaczego algorytm wybiera niedozwolone rozwiązania. Wiemy, że dozwolony cykl istnieje, ale jego koszt jest losowy. Postanowiliśmy sprawdzić jaki jest stosunek długości znanego dozwolonego cyklu (może istnieć inny cykl dozwolony) oraz cyklu wybranego przez badany algorytm. \\
+
+Wykres \ref{fig_krotsze_wsp} pokazuje, że dla małych współczynników drogi jednokierunkowej algorytm zwykle znajduje rozwiązanie o mniejszym koszcie niż rozwiązanie referencyjne. Potwierdza to, że współczynniki poniżej 10 są zbyt małe. Dla większych grafów wszystkie rozwiązania są krótsze niż referencyjne (mimo bardzo dużego współczynnika).
+
+Trudno jest określić jakąś zależność na podstawie \ref{fig_krotsze_jednokier}. Może to sugerować, że dla bardzo wielu dróg jednokierunkowych algorytm nie jest w stanie znaleźć dozwolonego rozwiązania.
+
+
+\begin{figure}
+\includegraphics{"../images/krotsze_jednokier"}
+\caption{Odsetek niedozwolonych cykli, krótszych niż referencyjny w zależności od odsetka dróg jednokierunkowych}
+\label{fig_krotsze_jednokier}
+\end{figure}
+
+\begin{figure}
+\includegraphics{"../images/krotsze_wsp"}
+\caption{Odsetek niedozwolonych cykli krótszych niż referencyjny w zależności od współczynnika kosztu drogi jednokierunkowej}
+\label{fig_krotsze_wsp}
+\end{figure}
 
 \subsection{Wnioski}
 \label{ss_wnioski} 
+
+Analiza wyników symulacji wskazuje, że zaimplementowana metoda symulacji dróg jednokierunkowych działa dobrze dla grafów, w których odsetek takich dróg jest mniejszy niż 20\%-30\%. \\
+
+Wartość współczynnika kosztu drogi jednokierunkowej ma duże znaczenie, ale tylko do pewnego momentu. Przy naszych założeniach współczynniki powyżej 10 dają bardzo zbliżone wyniki. Należy zwrócić uwagę, że maksymalny koszt drogi pomiędzy punktami położonymi na płaszczyźnie o wymiarach 1x1 to 1.41. Spekulacyjnie określony współczynnik jest więc większy mniej więcej o rząd wielkości. \\
+
+Zauważyliśmy, że w wielu przypadkach cykl znaleziony przez algorytm ma mniejszą długość niż cykl dozwolony. Przypuszczamy, że jest to spowodowane przez mnożenie kosztu drogi jednokierunkowej przez współczynnik. Takie rozwiązanie ma niewielki wpływ na koszt bardzo krótkich odcinków. Algorytm 2-opt wybiera wiele krótkich, niedozwolonych odcinków zamiast dłuższego dozwolonego.
+
+Możliwe, że lepszym rozwiązaniem byłoby zastępowanie kosztu odcinka zabronionego przez stałą, dużą wartość. Wtedy niezależnie od odległości na płaszczyźnie, przejście pod prąd znacząco podnosiło by koszt rozwiązania.
+
+Niestety sprawdzenie powyższej teorii wymagałoby ponownego przeprowadzenia testów i opóźnienia złożenia sprawozdania o kolejny dzień.
+
+
 
 \section{Bibliografia}
 

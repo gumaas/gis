@@ -310,6 +310,14 @@ def plot_zle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
         
     plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, numpy.multiply( res,100), kolor, label=label)
 
+def plot_zlecykle_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
+    res =[]
+    for k in sorted( dane.keys() ):
+        res.append( len(numpy.array( dane[k][wsp] )[:,3].nonzero()[0]) )
+        
+    plt.plot(numpy.arange(0, 1.0 ,0.1 )*100, numpy.divide( res,0.50), kolor, label=label)
+
+
 def zaleznosc_od_liczby_drog():
     
     dat5 = polacz_dane_wyjsciowe_wsp(
@@ -327,19 +335,32 @@ def zaleznosc_od_liczby_drog():
     dat100 = polacz_dane_wyjsciowe_wsp(
             numpy.load('../wyjsciowe3/0w0100_result.npy').item(),
             numpy.load('../wyjsciowe4/0w0100_result.npy').item() )    
-#    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
     
-    wsp = 100
-    plot_zle_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
-    plot_zle_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
-    plot_zle_od_ljednokierunkowych( dat20, wsp, 'b-', 21, "n=20" )
-    plot_zle_od_ljednokierunkowych( dat50, wsp, 'm-', 51, "n=50" )
-    plot_zle_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
-    plt.legend( loc=2)
-    plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
-    plt.ylabel( "Odsetek liczby odcinkow pokonanych pod prad [%]")
-    plt.savefig(glob_sciezka_obrazkow+"zleodc_njedn.pdf")    
-    plt.show()
+    for wsp in [ 2, 10, 100, 10000 ]:
+        plot_zle_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
+        plot_zle_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
+        plot_zle_od_ljednokierunkowych( dat20, wsp, 'b-', 21, "n=20" )
+        plot_zle_od_ljednokierunkowych( dat50, wsp, 'm-', 51, "n=50" )
+        plot_zle_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
+        plt.legend( loc=2)
+        plt.title("Wspolczynnik drogi jednokierunkowej = %.1f" % wsp)
+        plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
+        plt.ylabel( "Odsetek liczby odcinkow pokonanych pod prad [%]")
+        plt.savefig(glob_sciezka_obrazkow+"zleodc_njedn_w%d.pdf" % wsp )    
+        plt.show()
+        
+    for wsp in [ 2, 10, 100, 10000 ]:
+        plot_zlecykle_od_ljednokierunkowych( dat5, wsp, 'r-', 6, "n=5" )
+        plot_zlecykle_od_ljednokierunkowych( dat10, wsp, 'g-', 11, "n=10" )    
+        plot_zlecykle_od_ljednokierunkowych( dat20, wsp, 'b-', 21, "n=20" )
+        plot_zlecykle_od_ljednokierunkowych( dat50, wsp, 'm-', 51, "n=50" )
+        plot_zlecykle_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
+        plt.legend( loc=2)
+        plt.title("Wspolczynnik drogi jednokierunkowej = %.1f" % wsp)
+        plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
+        plt.ylabel( "Odsetek liczby cykli zawierajacych odcinek pod prad [%]")
+        plt.savefig(glob_sciezka_obrazkow+"zlecykl_njedn_w%d.pdf" % wsp )    
+        plt.show()
 
 
 def plot_zle_od_wspolczynnika( dane, jednokierprop, kolor, dlugosc_cyklu, label ):
@@ -351,6 +372,19 @@ def plot_zle_od_wspolczynnika( dane, jednokierprop, kolor, dlugosc_cyklu, label 
         x.append(k)
         
     plt.semilogx(x, numpy.multiply(res,100), kolor, label=label)
+
+
+def plot_zlecykle_od_wsp( dane, jednokierprop, kolor, dlugosc_cyklu, label ):
+    res =[]
+    x=[]
+    ljednokier=numpy.sort( dane.keys() )[ jednokierprop ]
+
+    for k in sorted( dane[ljednokier].keys() ):
+       res.append( len(numpy.array( dane[ljednokier][k] )[:,3].nonzero()[0] ) )
+       x.append(k)
+
+    plt.semilogx(x, numpy.multiply(res,2), kolor, label=label)
+
 
 def zaleznosc_od_wspolczynnika():
     
@@ -371,18 +405,31 @@ def zaleznosc_od_wspolczynnika():
             numpy.load('../wyjsciowe4/0w0100_result.npy').item() )    
 #    dat100=numpy.load('../wyjsciowe3/0w0100_result.npy').item()
     
-    jednokier_idx = 5 
-    plot_zle_od_wspolczynnika( dat5, jednokier_idx, 'rx-', 6, "n=5" )
-    plot_zle_od_wspolczynnika( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
-    plot_zle_od_wspolczynnika( dat20, jednokier_idx, 'bx-', 21, "n=20" )
-    plot_zle_od_wspolczynnika( dat50, jednokier_idx, 'mx-', 51, "n=50" )
-    plot_zle_od_wspolczynnika( dat100, jednokier_idx, 'yx-', 101, "n=100" )
-    plt.legend( loc=1)
-    plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
-    plt.ylabel( "Odsetek liczby odcinkow pokonanych pod prad [%]")
-    plt.savefig(glob_sciezka_obrazkow+"zleodc_wsp.pdf")    
-    plt.show()
+    for jednokier_idx in [ 2, 5, 8 ]:
+        plot_zle_od_wspolczynnika( dat5, jednokier_idx, 'rx-', 6, "n=5" )
+        plot_zle_od_wspolczynnika( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
+        plot_zle_od_wspolczynnika( dat20, jednokier_idx, 'bx-', 21, "n=20" )
+        plot_zle_od_wspolczynnika( dat50, jednokier_idx, 'mx-', 51, "n=50" )
+        plot_zle_od_wspolczynnika( dat100, jednokier_idx, 'yx-', 101, "n=100" )
+        plt.legend( loc=1)
+        plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
+        plt.ylabel( "Odsetek liczby odcinkow pokonanych pod prad [%]")
+        plt.title( "Odsetek drog jednokierunkowych = %d%%" % numpy.multiply(jednokier_idx,10) )
+        plt.savefig(glob_sciezka_obrazkow+"zleodc_wsp_j%d.pdf"% jednokier_idx)    
+        plt.show()
     
+    for jednokier_idx in [ 2, 5 ]:
+        plot_zlecykle_od_wsp( dat5, jednokier_idx, 'rx-', 6, "n=5" )
+        plot_zlecykle_od_wsp( dat10, jednokier_idx, 'gx-', 11, "n=10" )    
+        plot_zlecykle_od_wsp( dat20, jednokier_idx, 'bx-', 21, "n=20" )
+        plot_zlecykle_od_wsp( dat50, jednokier_idx, 'mx-', 51, "n=50" )
+        plot_zlecykle_od_wsp( dat100, jednokier_idx, 'yx-', 101, "n=100" )
+        plt.legend( loc=1)
+        plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
+        plt.ylabel( "Odsetek cykli zawierajacych niedozwolone drogi [%]")
+        plt.title( "Odsetek drog jednokierunkowych = %d%%" % numpy.multiply(jednokier_idx,10) )
+        plt.savefig(glob_sciezka_obrazkow+"zlecykle_wsp_j%d.pdf"% jednokier_idx)    
+        plt.show()
 
 def plot_rozrzut_od_ljednokierunkowych( dane, wsp, kolor, dlugosc_cyklu, label ):
     res =[]
@@ -460,6 +507,7 @@ def rozrzut_od_wspolczynnika():
     plot_rozrzut_od_wspolczynnika( dat50, jednokier_idx, 'mx-', 51, "n=50" )
     plot_rozrzut_od_wspolczynnika( dat100, jednokier_idx, 'yx-', 101, "n=100" )    
     plt.legend( loc=1)
+    plt.title( "Odsetek drog jednokierunkowych d = %d%%" % numpy.multiply(jednokier_idx,10) )
     plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
     plt.ylabel( "Odchylenie standardowe odsetka cykli niedozwolonych [%]")
     
@@ -525,6 +573,8 @@ def krotsze_pod_prad_od_wsp():
     plot_krotsze_pod_prad_wsp( dat50, jednokier_idx, 'mx-', 51, "n=50" )
     plot_krotsze_pod_prad_wsp( dat100, jednokier_idx, 'yx-', 101, "n=100" )    
     plt.legend( loc=2)
+    plt.title( "Odsetek drog jednokierunkowych d = %d%%" % numpy.multiply(jednokier_idx,10) )
+
     plt.xlabel( "Wspolczynnik kosztu drogi jednokierunkowej")
     plt.ylabel( "Odsetek niedozwolonych cykli krotszych niz referencyjny [%]")
     plt.ylim((-10,110))    
@@ -566,6 +616,8 @@ def krotsze_pod_prad_od_liczby_drog():
     plot_krotsze_pod_prad_od_ljednokierunkowych( dat50, wsp, 'm-', 51, "n=50" )
 #    plot_krotsze_pod_prad_od_ljednokierunkowych( dat100, wsp, 'y-', 101, "n=100"  )
     plt.legend( loc=2)
+    plt.title( "Wspolczynnik drogi jednokierunkowej %d" % wsp )
+
     plt.xlabel( "Odsetek liczby drog jednokierunkowych w grafie [%]")
     plt.ylabel( "Odsetek niedozwolonych cykli krotszych niz referencyjny [%]")
     plt.ylim((-10,110))    
